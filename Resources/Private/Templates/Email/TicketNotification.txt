@@ -1,0 +1,19 @@
+{brand}
+
+{headline}
+
+<f:if condition="{greetingName}">{hello} {greetingName},
+
+</f:if><f:if condition="{intro}">{intro}
+
+</f:if><f:if condition="{facts}"><f:for each="{facts}" as="fact">{fact.label}: {fact.value}
+</f:for>
+</f:if><f:if condition="{message}"><f:if condition="{messageLabel}">{messageLabel}
+</f:if>{message}
+
+</f:if><f:if condition="{ticketLink}">{labels.portalLinkIntro}
+{ticketLink}
+
+{labels.portalReplyHint}
+
+</f:if>{autoNotice}

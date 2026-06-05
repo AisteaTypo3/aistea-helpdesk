@@ -137,6 +137,30 @@ final class TicketQueryService
     /**
      * @return array<int, array<string, mixed>>
      */
+    public function findHistoryForTicketBackend(int $ticketUid): array
+    {
+        if ($ticketUid <= 0) {
+            return [];
+        }
+
+        $queryBuilder = $this->getConnectionPool()->getQueryBuilderForTable('tx_aisteahelpdesk_domain_model_tickethistory');
+
+        return $queryBuilder
+            ->select('*')
+            ->from('tx_aisteahelpdesk_domain_model_tickethistory')
+            ->where(
+                $queryBuilder->expr()->eq('ticket', $queryBuilder->createNamedParameter($ticketUid, ParameterType::INTEGER)),
+                $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->eq('hidden', 0)
+            )
+            ->orderBy('crdate', 'ASC')
+            ->executeQuery()
+            ->fetchAllAssociative();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function findAllTicketsForBackend(array $filters = []): array
     {
         $queryBuilder = $this->getConnectionPool()->getQueryBuilderForTable('tx_aisteahelpdesk_domain_model_ticket');
@@ -146,9 +170,17 @@ final class TicketQueryService
         ];
         $searchTerm = trim((string)($filters['q'] ?? ''));
         $statusCode = trim((string)($filters['status'] ?? ''));
+        $assignedBackendUser = (int)($filters['assignedBackendUser'] ?? -1);
 
         if ($statusCode !== '') {
             $constraints[] = $queryBuilder->expr()->eq('s.code', $queryBuilder->createNamedParameter($statusCode));
+        }
+
+        if ($assignedBackendUser >= 0) {
+            $constraints[] = $queryBuilder->expr()->eq(
+                't.assigned_backend_user',
+                $queryBuilder->createNamedParameter($assignedBackendUser, ParameterType::INTEGER)
+            );
         }
 
         if ($searchTerm !== '') {
@@ -161,16 +193,19 @@ final class TicketQueryService
             );
         }
 
-        return $queryBuilder
-            ->select('t.*', 's.title AS status_title', 's.code AS status_code', 'p.title AS priority_title')
+        $tickets = $queryBuilder
+            ->select('t.*', 's.title AS status_title', 's.code AS status_code', 'p.title AS priority_title', 'bu.username AS assigned_username', 'bu.realName AS assigned_real_name')
             ->addSelectLiteral('(SELECT COALESCE(SUM(m.attachments), 0) FROM tx_aisteahelpdesk_domain_model_ticketmessage m WHERE m.ticket = t.uid AND m.deleted = 0 AND m.hidden = 0) AS attachment_count')
             ->from('tx_aisteahelpdesk_domain_model_ticket', 't')
             ->leftJoin('t', 'tx_aisteahelpdesk_domain_model_ticketstatus', 's', 's.uid = t.status')
             ->leftJoin('t', 'tx_aisteahelpdesk_domain_model_ticketpriority', 'p', 'p.uid = t.priority')
+            ->leftJoin('t', 'be_users', 'bu', 'bu.uid = t.assigned_backend_user')
             ->where(...$constraints)
             ->orderBy('t.tstamp', 'DESC')
             ->executeQuery()
             ->fetchAllAssociative();
+
+        return $this->enrichTickets($tickets);
     }
 
     /**
@@ -180,12 +215,13 @@ final class TicketQueryService
     {
         $queryBuilder = $this->getConnectionPool()->getQueryBuilderForTable('tx_aisteahelpdesk_domain_model_ticket');
         $row = $queryBuilder
-            ->select('t.*', 's.title AS status_title', 's.code AS status_code', 'p.title AS priority_title', 'c.title AS category_title')
+            ->select('t.*', 's.title AS status_title', 's.code AS status_code', 'p.title AS priority_title', 'p.response_hours AS priority_response_hours', 'p.resolve_hours AS priority_resolve_hours', 'c.title AS category_title', 'bu.username AS assigned_username', 'bu.realName AS assigned_real_name')
             ->addSelectLiteral('(SELECT COALESCE(SUM(m.attachments), 0) FROM tx_aisteahelpdesk_domain_model_ticketmessage m WHERE m.ticket = t.uid AND m.deleted = 0 AND m.hidden = 0) AS attachment_count')
             ->from('tx_aisteahelpdesk_domain_model_ticket', 't')
             ->leftJoin('t', 'tx_aisteahelpdesk_domain_model_ticketstatus', 's', 's.uid = t.status')
             ->leftJoin('t', 'tx_aisteahelpdesk_domain_model_ticketpriority', 'p', 'p.uid = t.priority')
             ->leftJoin('t', 'tx_aisteahelpdesk_domain_model_ticketcategory', 'c', 'c.uid = t.category')
+            ->leftJoin('t', 'be_users', 'bu', 'bu.uid = t.assigned_backend_user')
             ->where(
                 $queryBuilder->expr()->eq('t.uid', $queryBuilder->createNamedParameter($ticketUid, ParameterType::INTEGER)),
                 $queryBuilder->expr()->eq('t.deleted', 0),
@@ -195,7 +231,11 @@ final class TicketQueryService
             ->executeQuery()
             ->fetchAssociative();
 
-        return is_array($row) ? $row : null;
+        if (!is_array($row)) {
+            return null;
+        }
+
+        return $this->enrichTicket($row);
     }
 
     /**
@@ -236,6 +276,35 @@ final class TicketQueryService
     public function findAllStatuses(): array
     {
         return $this->findLookupRows('tx_aisteahelpdesk_domain_model_ticketstatus');
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function findAssignableBackendUsers(): array
+    {
+        $queryBuilder = $this->getConnectionPool()->getQueryBuilderForTable('be_users');
+
+        $users = $queryBuilder
+            ->select('uid', 'username', 'realName')
+            ->from('be_users')
+            ->where(
+                $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->eq('disable', 0),
+                $queryBuilder->expr()->neq('username', $queryBuilder->createNamedParameter('_cli_'))
+            )
+            ->orderBy('username')
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        foreach ($users as &$user) {
+            $realName = trim((string)($user['realName'] ?? ''));
+            $username = trim((string)($user['username'] ?? ''));
+            $user['display_label'] = $realName !== '' ? $realName . ' (' . $username . ')' : $username;
+        }
+        unset($user);
+
+        return $users;
     }
 
     /**
@@ -290,6 +359,43 @@ final class TicketQueryService
         unset($message);
 
         return $messages;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $tickets
+     * @return array<int, array<string, mixed>>
+     */
+    private function enrichTickets(array $tickets): array
+    {
+        foreach ($tickets as &$ticket) {
+            $ticket = $this->enrichTicket($ticket);
+        }
+        unset($ticket);
+
+        return $tickets;
+    }
+
+    /**
+     * @param array<string, mixed> $ticket
+     * @return array<string, mixed>
+     */
+    private function enrichTicket(array $ticket): array
+    {
+        $assignedName = trim((string)($ticket['assigned_real_name'] ?? ''));
+        if ($assignedName === '') {
+            $assignedName = trim((string)($ticket['assigned_username'] ?? ''));
+        }
+
+        $dueAt = (int)($ticket['due_at'] ?? 0);
+        $isClosed = in_array((string)($ticket['status_code'] ?? ''), ['resolved', 'closed'], true);
+
+        $ticket['assigned_backend_user_name'] = $assignedName;
+        $ticket['is_overdue'] = $dueAt > 0 && !$isClosed && $dueAt < time();
+        $ticket['has_first_response'] = (int)($ticket['first_response_at'] ?? 0) > 0;
+        $ticket['is_resolved'] = (int)($ticket['resolved_at'] ?? 0) > 0;
+        $ticket['is_closed'] = (int)($ticket['closed_at'] ?? 0) > 0;
+
+        return $ticket;
     }
 
     private function getAttachmentService(): AttachmentService

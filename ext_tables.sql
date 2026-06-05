@@ -55,6 +55,30 @@ CREATE TABLE tx_aisteahelpdesk_domain_model_ticketmessage (
   KEY is_internal (is_internal)
 );
 
+CREATE TABLE tx_aisteahelpdesk_domain_model_tickethistory (
+  uid int(11) NOT NULL auto_increment,
+  pid int(11) NOT NULL DEFAULT '0',
+  tstamp int(11) unsigned NOT NULL DEFAULT '0',
+  crdate int(11) unsigned NOT NULL DEFAULT '0',
+  cruser_id int(11) unsigned NOT NULL DEFAULT '0',
+  deleted smallint(5) unsigned NOT NULL DEFAULT '0',
+  hidden smallint(5) unsigned NOT NULL DEFAULT '0',
+  sorting int(11) unsigned NOT NULL DEFAULT '0',
+  ticket int(11) unsigned NOT NULL DEFAULT '0',
+  action varchar(64) NOT NULL DEFAULT '',
+  actor_type varchar(20) NOT NULL DEFAULT '',
+  actor_name varchar(255) NOT NULL DEFAULT '',
+  actor_fe_user int(11) unsigned NOT NULL DEFAULT '0',
+  actor_be_user int(11) unsigned NOT NULL DEFAULT '0',
+  old_value varchar(255) NOT NULL DEFAULT '',
+  new_value varchar(255) NOT NULL DEFAULT '',
+  details text,
+  PRIMARY KEY (uid),
+  KEY parent (pid),
+  KEY ticket (ticket),
+  KEY action (action)
+);
+
 CREATE TABLE tx_aisteahelpdesk_domain_model_ticketcategory (
   uid int(11) NOT NULL auto_increment,
   pid int(11) NOT NULL DEFAULT '0',

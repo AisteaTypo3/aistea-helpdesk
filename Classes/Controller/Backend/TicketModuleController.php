@@ -26,7 +26,7 @@ final class TicketModuleController extends ActionController
         private readonly IconFactory $iconFactory
     ) {}
 
-    public function indexAction(string $status = '', string $q = ''): ResponseInterface
+    public function indexAction(string $status = '', string $q = '', int $assignedBackendUser = -1): ResponseInterface
     {
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $moduleTemplate->setTitle('Helpdesk');
@@ -40,6 +40,7 @@ final class TicketModuleController extends ActionController
         $filters = [
             'status' => trim($status),
             'q' => trim($q),
+            'assignedBackendUser' => $assignedBackendUser,
         ];
         $statusCounts = $this->ticketQueryService->countTicketsByStatusCode();
         $statusFilterItems = [[
@@ -62,6 +63,7 @@ final class TicketModuleController extends ActionController
             'tickets' => $this->ticketQueryService->findAllTicketsForBackend($filters),
             'statusOptions' => $this->ticketQueryService->findAllStatuses(),
             'statusFilterItems' => $statusFilterItems,
+            'backendUsers' => $this->ticketQueryService->findAssignableBackendUsers(),
             'filters' => $filters,
         ]);
 
@@ -89,7 +91,9 @@ final class TicketModuleController extends ActionController
         $moduleTemplate->assignMultiple([
             'ticket' => $ticketRow,
             'messages' => $this->ticketQueryService->findMessagesForTicketBackend((int)$ticketRow['uid']),
+            'history' => $this->ticketQueryService->findHistoryForTicketBackend((int)$ticketRow['uid']),
             'statusOptions' => $this->ticketQueryService->findAllStatuses(),
+            'backendUsers' => $this->ticketQueryService->findAssignableBackendUsers(),
         ]);
 
         return $moduleTemplate->renderResponse('Backend/Ticket/Show');
@@ -112,6 +116,24 @@ final class TicketModuleController extends ActionController
                 );
             }
         }
+
+        return $this->redirect('show', null, null, ['ticket' => $ticket]);
+    }
+
+    public function updateAssignmentAction(int $ticket = 0, int $assignedBackendUser = 0): ResponseInterface
+    {
+        if ($ticket <= 0) {
+            $this->addFlashMessage('Ticket not found.', '', ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('index');
+        }
+
+        $ticketRow = $this->ticketQueryService->findTicketForBackend($ticket);
+        if (!is_array($ticketRow)) {
+            $this->addFlashMessage('Ticket not found.', '', ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('index');
+        }
+
+        $this->ticketWriteService->assignBackendUser($ticket, $assignedBackendUser);
 
         return $this->redirect('show', null, null, ['ticket' => $ticket]);
     }

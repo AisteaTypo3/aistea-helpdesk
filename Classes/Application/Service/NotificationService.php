@@ -6,10 +6,12 @@ namespace Aistea\AisteaHelpdesk\Application\Service;
 
 use Aistea\AisteaHelpdesk\Localization\HelpdeskLocalization;
 use Symfony\Component\Mime\Address;
+use TYPO3\CMS\Core\Mail\FluidEmail;
 use TYPO3\CMS\Core\Mail\MailerInterface;
-use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Fluid\View\TemplatePaths;
 
 final class NotificationService
 {
@@ -29,7 +31,7 @@ final class NotificationService
             $this->sendMail(
                 $customerEmail,
                 $this->interpolate($labels['customerTicketCreatedSubject'], $ticket),
-                $this->buildCustomerTicketCreatedBody($ticket, $labels)
+                $this->buildCustomerTicketCreatedMail($ticket, $labels)
             );
         }
 
@@ -38,7 +40,7 @@ final class NotificationService
             $this->sendMail(
                 $supportEmail,
                 $this->interpolate($labels['supportTicketCreatedSubject'], $ticket),
-                $this->buildSupportTicketCreatedBody($ticket, $labels)
+                $this->buildSupportTicketCreatedMail($ticket, $labels)
             );
         }
     }
@@ -57,7 +59,7 @@ final class NotificationService
         $this->sendMail(
             $supportEmail,
             $this->interpolate($labels['supportCustomerReplySubject'], $ticket),
-            $this->buildSupportCustomerReplyBody($ticket, $message, $labels)
+            $this->buildSupportCustomerReplyMail($ticket, $message, $labels)
         );
     }
 
@@ -75,7 +77,7 @@ final class NotificationService
         $this->sendMail(
             $customerEmail,
             $this->interpolate($labels['customerAgentReplySubject'], $ticket),
-            $this->buildCustomerAgentReplyBody($ticket, $message, $labels)
+            $this->buildCustomerAgentReplyMail($ticket, $message, $labels)
         );
     }
 
@@ -93,135 +95,115 @@ final class NotificationService
         $this->sendMail(
             $customerEmail,
             $this->interpolate($labels['customerStatusChangedSubject'], $ticket),
-            $this->buildCustomerStatusChangedBody($ticket, $oldStatusTitle, $newStatusTitle, $labels)
+            $this->buildCustomerStatusChangedMail($ticket, $oldStatusTitle, $newStatusTitle, $labels)
         );
     }
 
     /**
      * @param array<string, mixed> $ticket
      */
-    private function buildCustomerTicketCreatedBody(array $ticket, array $labels): string
+    private function buildCustomerTicketCreatedMail(array $ticket, array $labels): array
     {
-        $ticketLink = $this->buildTicketLink($ticket);
-        return $this->wrapMail(
-            $labels['customerTicketCreatedHeadline'],
-            sprintf(
-                '<p>%s %s,</p><p>%s</p>',
-                $this->escape($labels['hello']),
-                $this->escape((string)($ticket['customer_name'] ?? '')),
-                $this->escape($this->interpolate($labels['customerTicketCreatedBody'], $ticket))
-            ),
-            [
-                $labels['detailsTicketNumber'] => (string)($ticket['ticket_number'] ?? ''),
-                $labels['detailsSubject'] => (string)($ticket['subject'] ?? ''),
-                $labels['detailsStatus'] => (string)($ticket['status_title'] ?? ''),
+        return $this->buildMailContext($ticket, $labels, [
+            'headline' => $labels['customerTicketCreatedHeadline'],
+            'greetingName' => (string)($ticket['customer_name'] ?? ''),
+            'intro' => $this->interpolate($labels['customerTicketCreatedBody'], $ticket),
+            'facts' => [
+                ['label' => $labels['detailsTicketNumber'], 'value' => (string)($ticket['ticket_number'] ?? '')],
+                ['label' => $labels['detailsSubject'], 'value' => (string)($ticket['subject'] ?? '')],
+                ['label' => $labels['detailsStatus'], 'value' => (string)($ticket['status_title'] ?? '')],
             ],
-            $labels,
-            $ticketLink
-        );
+            'ticketLink' => $this->buildTicketLink($ticket),
+        ]);
     }
 
     /**
      * @param array<string, mixed> $ticket
      */
-    private function buildSupportTicketCreatedBody(array $ticket, array $labels): string
+    private function buildSupportTicketCreatedMail(array $ticket, array $labels): array
     {
-        return $this->wrapMail(
-            $labels['supportTicketCreatedHeadline'],
-            sprintf(
-                '<p>%s</p><p><strong>%s</strong></p><p>%s</p>',
-                $this->escape($labels['supportTicketCreatedIntro']),
-                $this->escape($labels['detailsDescription']),
-                nl2br($this->escape((string)($ticket['description'] ?? '')))
-            ),
-            [
-                $labels['detailsTicketNumber'] => (string)($ticket['ticket_number'] ?? ''),
-                $labels['detailsSubject'] => (string)($ticket['subject'] ?? ''),
-                $labels['detailsCustomer'] => trim((string)($ticket['customer_name'] ?? '') . ' <' . (string)($ticket['customer_email'] ?? '') . '>'),
-                $labels['detailsPriority'] => (string)($ticket['priority_title'] ?? ''),
-                $labels['detailsCategory'] => (string)($ticket['category_title'] ?? ''),
+        return $this->buildMailContext($ticket, $labels, [
+            'headline' => $labels['supportTicketCreatedHeadline'],
+            'intro' => $labels['supportTicketCreatedIntro'],
+            'messageLabel' => $labels['detailsDescription'],
+            'message' => (string)($ticket['description'] ?? ''),
+            'facts' => [
+                ['label' => $labels['detailsTicketNumber'], 'value' => (string)($ticket['ticket_number'] ?? '')],
+                ['label' => $labels['detailsSubject'], 'value' => (string)($ticket['subject'] ?? '')],
+                ['label' => $labels['detailsCustomer'], 'value' => trim((string)($ticket['customer_name'] ?? '') . ' <' . (string)($ticket['customer_email'] ?? '') . '>')],
+                ['label' => $labels['detailsPriority'], 'value' => (string)($ticket['priority_title'] ?? '')],
+                ['label' => $labels['detailsCategory'], 'value' => (string)($ticket['category_title'] ?? '')],
             ],
-            $labels
-        );
+        ]);
     }
 
     /**
      * @param array<string, mixed> $ticket
      */
-    private function buildSupportCustomerReplyBody(array $ticket, string $message, array $labels): string
+    private function buildSupportCustomerReplyMail(array $ticket, string $message, array $labels): array
     {
-        return $this->wrapMail(
-            $labels['supportCustomerReplyHeadline'],
-            sprintf(
-                '<p>%s</p><p><strong>%s</strong></p><p>%s</p>',
-                $this->escape($labels['supportCustomerReplyIntro']),
-                $this->escape($labels['detailsMessage']),
-                nl2br($this->escape($message))
-            ),
-            [
-                $labels['detailsTicketNumber'] => (string)($ticket['ticket_number'] ?? ''),
-                $labels['detailsSubject'] => (string)($ticket['subject'] ?? ''),
-                $labels['detailsFrom'] => trim((string)($ticket['customer_name'] ?? '') . ' <' . (string)($ticket['customer_email'] ?? '') . '>'),
+        return $this->buildMailContext($ticket, $labels, [
+            'headline' => $labels['supportCustomerReplyHeadline'],
+            'intro' => $labels['supportCustomerReplyIntro'],
+            'messageLabel' => $labels['detailsMessage'],
+            'message' => $message,
+            'facts' => [
+                ['label' => $labels['detailsTicketNumber'], 'value' => (string)($ticket['ticket_number'] ?? '')],
+                ['label' => $labels['detailsSubject'], 'value' => (string)($ticket['subject'] ?? '')],
+                ['label' => $labels['detailsFrom'], 'value' => trim((string)($ticket['customer_name'] ?? '') . ' <' . (string)($ticket['customer_email'] ?? '') . '>')],
             ],
-            $labels
-        );
+        ]);
     }
 
     /**
      * @param array<string, mixed> $ticket
      */
-    private function buildCustomerAgentReplyBody(array $ticket, string $message, array $labels): string
+    private function buildCustomerAgentReplyMail(array $ticket, string $message, array $labels): array
     {
-        $ticketLink = $this->buildTicketLink($ticket);
-        return $this->wrapMail(
-            $labels['customerAgentReplyHeadline'],
-            sprintf(
-                '<p>%s %s,</p><p>%s</p><p><strong>%s</strong></p><p>%s</p>',
-                $this->escape($labels['hello']),
-                $this->escape((string)($ticket['customer_name'] ?? '')),
-                $this->escape($this->interpolate($labels['customerAgentReplyBody'], $ticket)),
-                $this->escape($labels['detailsMessage']),
-                nl2br($this->escape($message))
-            ),
-            [
-                $labels['detailsTicketNumber'] => (string)($ticket['ticket_number'] ?? ''),
-                $labels['detailsSubject'] => (string)($ticket['subject'] ?? ''),
+        return $this->buildMailContext($ticket, $labels, [
+            'headline' => $labels['customerAgentReplyHeadline'],
+            'greetingName' => (string)($ticket['customer_name'] ?? ''),
+            'intro' => $this->interpolate($labels['customerAgentReplyBody'], $ticket),
+            'messageLabel' => $labels['detailsMessage'],
+            'message' => $message,
+            'facts' => [
+                ['label' => $labels['detailsTicketNumber'], 'value' => (string)($ticket['ticket_number'] ?? '')],
+                ['label' => $labels['detailsSubject'], 'value' => (string)($ticket['subject'] ?? '')],
             ],
-            $labels,
-            $ticketLink
-        );
+            'ticketLink' => $this->buildTicketLink($ticket),
+        ]);
     }
 
     /**
      * @param array<string, mixed> $ticket
      */
-    private function buildCustomerStatusChangedBody(array $ticket, string $oldStatusTitle, string $newStatusTitle, array $labels): string
+    private function buildCustomerStatusChangedMail(array $ticket, string $oldStatusTitle, string $newStatusTitle, array $labels): array
     {
-        return $this->wrapMail(
-            $labels['customerStatusChangedHeadline'],
-            sprintf(
-                '<p>%s %s,</p><p>%s</p>',
-                $this->escape($labels['hello']),
-                $this->escape((string)($ticket['customer_name'] ?? '')),
-                $this->escape($this->interpolate($labels['customerStatusChangedBody'], $ticket))
-            ),
-            [
-                $labels['detailsTicketNumber'] => (string)($ticket['ticket_number'] ?? ''),
-                $labels['detailsSubject'] => (string)($ticket['subject'] ?? ''),
-                $labels['detailsOldStatus'] => $oldStatusTitle,
-                $labels['detailsNewStatus'] => $newStatusTitle,
+        return $this->buildMailContext($ticket, $labels, [
+            'headline' => $labels['customerStatusChangedHeadline'],
+            'greetingName' => (string)($ticket['customer_name'] ?? ''),
+            'intro' => $this->interpolate($labels['customerStatusChangedBody'], $ticket),
+            'facts' => [
+                ['label' => $labels['detailsTicketNumber'], 'value' => (string)($ticket['ticket_number'] ?? '')],
+                ['label' => $labels['detailsSubject'], 'value' => (string)($ticket['subject'] ?? '')],
+                ['label' => $labels['detailsOldStatus'], 'value' => $oldStatusTitle],
+                ['label' => $labels['detailsNewStatus'], 'value' => $newStatusTitle],
             ],
-            $labels
-        );
+        ]);
     }
 
-    private function sendMail(string $recipientEmail, string $subject, string $html): void
+    /**
+     * @param array<string, mixed> $templateData
+     */
+    private function sendMail(string $recipientEmail, string $subject, array $templateData): void
     {
         $senderEmail = $this->getSenderEmail();
-        $mail = GeneralUtility::makeInstance(MailMessage::class);
+        $mail = GeneralUtility::makeInstance(FluidEmail::class, $this->createTemplatePaths());
         $mail->to($recipientEmail)
             ->subject($subject)
-            ->html($html);
+            ->format(FluidEmail::FORMAT_BOTH)
+            ->setTemplate('TicketNotification')
+            ->assignMultiple($templateData);
 
         if ($senderEmail !== '') {
             $mail->from(new Address($senderEmail, $this->getSenderName()));
@@ -252,71 +234,50 @@ final class NotificationService
         return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : '';
     }
 
-    private function escape(string $value): string
-    {
-        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    }
-
     /**
-     * @param array<string, string> $facts
-     * @param array<string, string> $mailLabels
+     * @param array<string, mixed> $ticket
+     * @param array<string, string> $labels
+     * @param array<string, mixed> $context
+     * @return array<string, mixed>
      */
-    private function wrapMail(string $headline, string $body, array $facts = [], array $mailLabels = [], string $ticketLink = ''): string
+    private function buildMailContext(array $ticket, array $labels, array $context): array
     {
-        $factsMarkup = '';
-        foreach ($facts as $label => $value) {
-            $normalizedValue = trim($value);
-            if ($normalizedValue === '') {
-                continue;
+        $facts = [];
+        foreach ((array)($context['facts'] ?? []) as $fact) {
+            $value = trim((string)($fact['value'] ?? ''));
+            if ($value !== '') {
+                $facts[] = [
+                    'label' => (string)($fact['label'] ?? ''),
+                    'value' => $value,
+                ];
             }
-
-            $factsMarkup .= sprintf(
-                '<tr><td style="padding:8px 0;color:#6b7280;font-size:13px;vertical-align:top;width:140px;">%s</td><td style="padding:8px 0;color:#111827;font-size:14px;font-weight:600;">%s</td></tr>',
-                $this->escape($label),
-                $this->escape($normalizedValue)
-            );
         }
 
-        $detailsBlock = $factsMarkup !== ''
-            ? '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:0 0 24px;border-collapse:collapse;">' . $factsMarkup . '</table>'
-            : '';
-        $ticketLinkBlock = $ticketLink !== ''
-            ? sprintf(
-                '<div style="margin:24px 0 0;">'
-                . '<p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#334155;">%s</p>'
-                . '<p style="margin:0 0 16px;"><a href="%s" style="display:inline-block;padding:14px 20px;border-radius:999px;background:#111827;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">%s</a></p>'
-                . '<p style="margin:0 0 8px;font-size:13px;line-height:1.6;color:#64748b;">%s</p>'
-                . '<p style="margin:0;font-size:13px;line-height:1.7;word-break:break-all;"><a href="%s" style="color:#2563eb;text-decoration:none;">%s</a></p>'
-                . '<p style="margin:12px 0 0;font-size:13px;line-height:1.6;color:#475569;">%s</p>'
-                . '</div>',
-                $this->escape($mailLabels['portalLinkIntro'] ?? ''),
-                $this->escape($ticketLink),
-                $this->escape($mailLabels['portalLinkButton'] ?? 'Open ticket'),
-                $this->escape($mailLabels['portalLinkFallback'] ?? ''),
-                $this->escape($ticketLink),
-                $this->escape($ticketLink),
-                $this->escape($mailLabels['portalReplyHint'] ?? '')
-            )
-            : '';
+        return [
+            'ticket' => $ticket,
+            'labels' => $labels,
+            'brand' => $labels['brand'] ?? $this->getFallbackMailBrand(),
+            'autoNotice' => $labels['autoNotice'] ?? $this->getFallbackMailNotice(),
+            'hello' => $labels['hello'] ?? 'Hello',
+            'headline' => (string)($context['headline'] ?? ''),
+            'greetingName' => (string)($context['greetingName'] ?? ''),
+            'intro' => (string)($context['intro'] ?? ''),
+            'messageLabel' => (string)($context['messageLabel'] ?? ''),
+            'message' => (string)($context['message'] ?? ''),
+            'facts' => $facts,
+            'ticketLink' => (string)($context['ticketLink'] ?? ''),
+        ];
+    }
 
-        return sprintf(
-            '<!DOCTYPE html><html><body style="margin:0;padding:32px 18px;background:#eef2f5;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif;color:#111827;">'
-            . '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%%;max-width:680px;margin:0 auto;border-collapse:collapse;">'
-            . '<tr><td style="padding:0 0 18px;color:#6b7280;font-size:12px;letter-spacing:.12em;text-transform:uppercase;">%s</td></tr>'
-            . '<tr><td style="background:#ffffff;border:1px solid #d7dde4;border-radius:24px;padding:32px 32px 24px;box-shadow:0 10px 30px rgba(17,24,39,.06);">'
-            . '<h1 style="margin:0 0 18px;font-size:28px;line-height:1.15;color:#111827;">%s</h1>'
-            . '%s'
-            . '<div style="font-size:15px;line-height:1.7;color:#334155;">%s</div>%s'
-            . '</td></tr>'
-            . '<tr><td style="padding:16px 4px 0;color:#6b7280;font-size:12px;line-height:1.6;">%s</td></tr>'
-            . '</table></body></html>',
-            $this->escape($mailLabels['brand'] ?? $this->getFallbackMailBrand()),
-            $this->escape($headline),
-            $detailsBlock,
-            $body,
-            $ticketLinkBlock,
-            $this->escape($mailLabels['autoNotice'] ?? $this->getFallbackMailNotice())
-        );
+    private function createTemplatePaths(): TemplatePaths
+    {
+        $templatePaths = GeneralUtility::makeInstance(TemplatePaths::class);
+        $basePath = ExtensionManagementUtility::extPath('aistea_helpdesk') . 'Resources/Private/';
+        $templatePaths->setTemplateRootPaths([$basePath . 'Templates/Email/']);
+        $templatePaths->setLayoutRootPaths([$basePath . 'Layouts/Email/']);
+        $templatePaths->setPartialRootPaths([$basePath . 'Partials/Email/']);
+
+        return $templatePaths;
     }
 
     private function getMailer(): MailerInterface

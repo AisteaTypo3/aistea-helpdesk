@@ -1,0 +1,53 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<body style="margin:0;padding:32px 18px;background:#eef2f5;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif;color:#111827;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:680px;margin:0 auto;border-collapse:collapse;">
+    <tr>
+        <td style="padding:0 0 18px;color:#6b7280;font-size:12px;letter-spacing:.12em;text-transform:uppercase;">{brand}</td>
+    </tr>
+    <tr>
+        <td style="background:#ffffff;border:1px solid #d7dde4;border-radius:24px;padding:32px 32px 24px;box-shadow:0 10px 30px rgba(17,24,39,.06);">
+            <h1 style="margin:0 0 18px;font-size:28px;line-height:1.15;color:#111827;">{headline}</h1>
+
+            <f:if condition="{facts}">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:0 0 24px;border-collapse:collapse;">
+                    <f:for each="{facts}" as="fact">
+                        <tr>
+                            <td style="padding:8px 0;color:#6b7280;font-size:13px;vertical-align:top;width:140px;">{fact.label}</td>
+                            <td style="padding:8px 0;color:#111827;font-size:14px;font-weight:600;">{fact.value}</td>
+                        </tr>
+                    </f:for>
+                </table>
+            </f:if>
+
+            <div style="font-size:15px;line-height:1.7;color:#334155;">
+                <f:if condition="{greetingName}">
+                    <p style="margin:0 0 14px;">{hello} {greetingName},</p>
+                </f:if>
+                <f:if condition="{intro}">
+                    <p style="margin:0 0 14px;">{intro}</p>
+                </f:if>
+                <f:if condition="{message}">
+                    <f:if condition="{messageLabel}">
+                        <p style="margin:16px 0 8px;"><strong>{messageLabel}</strong></p>
+                    </f:if>
+                    <p style="margin:0 0 14px;"><f:format.nl2br>{message}</f:format.nl2br></p>
+                </f:if>
+            </div>
+
+            <f:if condition="{ticketLink}">
+                <div style="margin:24px 0 0;">
+                    <p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#334155;">{labels.portalLinkIntro}</p>
+                    <p style="margin:0 0 16px;"><a href="{ticketLink}" style="display:inline-block;padding:14px 20px;border-radius:999px;background:#111827;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">{labels.portalLinkButton}</a></p>
+                    <p style="margin:0 0 8px;font-size:13px;line-height:1.6;color:#64748b;">{labels.portalLinkFallback}</p>
+                    <p style="margin:0;font-size:13px;line-height:1.7;word-break:break-all;"><a href="{ticketLink}" style="color:#2563eb;text-decoration:none;">{ticketLink}</a></p>
+                    <p style="margin:12px 0 0;font-size:13px;line-height:1.6;color:#475569;">{labels.portalReplyHint}</p>
+                </div>
+            </f:if>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding:16px 4px 0;color:#6b7280;font-size:12px;line-height:1.6;">{autoNotice}</td>
+    </tr>
+</table>
+</body>
+</html>

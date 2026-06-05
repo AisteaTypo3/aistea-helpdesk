@@ -5,6 +5,7 @@
     <body>
       <trans-unit id="ticket"><source>Ticket</source></trans-unit>
       <trans-unit id="ticketMessage"><source>Ticket Message</source></trans-unit>
+      <trans-unit id="ticketHistory"><source>Ticket History</source></trans-unit>
       <trans-unit id="ticketCategory"><source>Ticket Category</source></trans-unit>
       <trans-unit id="ticketPriority"><source>Ticket Priority</source></trans-unit>
       <trans-unit id="ticketStatus"><source>Ticket Status</source></trans-unit>
@@ -19,7 +20,18 @@
       <trans-unit id="field.priority"><source>Priority</source></trans-unit>
       <trans-unit id="field.status"><source>Status</source></trans-unit>
       <trans-unit id="field.dueAt"><source>Due At</source></trans-unit>
+      <trans-unit id="field.firstResponseAt"><source>First Response At</source></trans-unit>
+      <trans-unit id="field.resolvedAt"><source>Resolved At</source></trans-unit>
+      <trans-unit id="field.closedAt"><source>Closed At</source></trans-unit>
       <trans-unit id="field.ticket"><source>Ticket</source></trans-unit>
+      <trans-unit id="field.action"><source>Action</source></trans-unit>
+      <trans-unit id="field.actorType"><source>Actor Type</source></trans-unit>
+      <trans-unit id="field.actorName"><source>Actor Name</source></trans-unit>
+      <trans-unit id="field.actorFeUser"><source>Actor Frontend User</source></trans-unit>
+      <trans-unit id="field.actorBeUser"><source>Actor Backend User</source></trans-unit>
+      <trans-unit id="field.oldValue"><source>Old Value</source></trans-unit>
+      <trans-unit id="field.newValue"><source>New Value</source></trans-unit>
+      <trans-unit id="field.details"><source>Details</source></trans-unit>
       <trans-unit id="field.authorType"><source>Author Type</source></trans-unit>
       <trans-unit id="field.authorName"><source>Author Name</source></trans-unit>
       <trans-unit id="field.authorEmail"><source>Author Email</source></trans-unit>

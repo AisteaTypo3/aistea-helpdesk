@@ -20,7 +20,7 @@ return [
         'iconfile' => 'EXT:aistea_helpdesk/Resources/Public/Icons/Extension.svg',
     ],
     'types' => [
-        '1' => ['showitem' => 'hidden, ticket_number, subject, description, customer_name, customer_email, customer_fe_user, assigned_backend_user, category, priority, status, due_at, site_root_page_id, site_language'],
+        '1' => ['showitem' => 'hidden, ticket_number, subject, description, customer_name, customer_email, customer_fe_user, assigned_backend_user, category, priority, status, due_at, first_response_at, resolved_at, closed_at, site_root_page_id, site_language'],
     ],
     'columns' => [
         'hidden' => ['config' => ['type' => 'check', 'renderType' => 'checkboxToggle']],
@@ -35,6 +35,9 @@ return [
         'priority' => ['label' => $languageFile . 'field.priority', 'config' => ['type' => 'select', 'renderType' => 'selectSingle', 'foreign_table' => 'tx_aisteahelpdesk_domain_model_ticketpriority']],
         'status' => ['label' => $languageFile . 'field.status', 'config' => ['type' => 'select', 'renderType' => 'selectSingle', 'foreign_table' => 'tx_aisteahelpdesk_domain_model_ticketstatus']],
         'due_at' => ['label' => $languageFile . 'field.dueAt', 'config' => ['type' => 'datetime', 'default' => 0]],
+        'first_response_at' => ['label' => $languageFile . 'field.firstResponseAt', 'config' => ['type' => 'datetime', 'default' => 0, 'readOnly' => true]],
+        'resolved_at' => ['label' => $languageFile . 'field.resolvedAt', 'config' => ['type' => 'datetime', 'default' => 0, 'readOnly' => true]],
+        'closed_at' => ['label' => $languageFile . 'field.closedAt', 'config' => ['type' => 'datetime', 'default' => 0, 'readOnly' => true]],
         'site_root_page_id' => ['label' => $languageFile . 'field.siteRootPageId', 'config' => ['type' => 'number', 'readOnly' => true, 'default' => 0]],
         'site_language' => ['label' => $languageFile . 'field.siteLanguage', 'config' => ['type' => 'number', 'readOnly' => true, 'default' => 0]],
     ],
