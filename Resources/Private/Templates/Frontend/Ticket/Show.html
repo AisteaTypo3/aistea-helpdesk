@@ -1,0 +1,76 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:layout name="Default" />
+
+<f:section name="Main">
+    <f:if condition="{ticket}">
+        <f:then>
+            <div class="ahd-shell ahd-shell--detail">
+                <section class="ahd-card ahd-ticket-header">
+                    <div>
+                        <p class="ahd-kicker">{ticket.ticket_number}</p>
+                        <h1>{ticket.subject}</h1>
+                        <p class="ahd-muted">{ticket.category_title} · {ticket.priority_title} · {ticket.status_title}</p>
+                    </div>
+                </section>
+
+                <section class="ahd-card">
+                    <h2>{labels.timeline}</h2>
+                    <div class="ahd-thread">
+                        <f:for each="{messages}" as="message">
+                            <article class="ahd-message">
+                                <div class="ahd-message__meta">
+                                    <strong>{message.author_name}</strong>
+                                    <span>{message.crdate -> f:format.date(format:'d.m.Y H:i')}</span>
+                                </div>
+                                <div class="ahd-message__body">
+                                    <f:format.nl2br>{message.message}</f:format.nl2br>
+                                </div>
+                                <f:if condition="{message.attachments}">
+                                    <div class="ahd-attachments">
+                                        <p class="ahd-attachments__title">{labels.attachmentsHeading}</p>
+                                        <div class="ahd-attachment-list">
+                                            <f:for each="{message.attachments}" as="attachment">
+                                                <a href="{attachment.publicUrl}" class="ahd-attachment" target="_blank" rel="noopener">
+                                                    <span class="ahd-attachment__name">{attachment.name}</span>
+                                                    <span class="ahd-attachment__meta">{labels.downloadAttachment}</span>
+                                                </a>
+                                            </f:for>
+                                        </div>
+                                    </div>
+                                </f:if>
+                            </article>
+                        </f:for>
+                    </div>
+                </section>
+
+                <section class="ahd-card">
+                    <h2>{labels.sendReply}</h2>
+                    <f:form action="reply" class="ahd-form" additionalAttributes="{enctype: 'multipart/form-data'}">
+                        <f:form.hidden name="ticket" value="{ticket.uid}" />
+                        <f:form.hidden name="token" value="{token}" />
+                        <div class="ahd-field">
+                            <label for="ahd-reply">{labels.replyMessage}</label>
+                            <f:form.textarea id="ahd-reply" name="message" rows="7" required="required" />
+                        </div>
+                        <div class="ahd-field">
+                            <label for="ahd-reply-attachments">{labels.attachments}</label>
+                            <f:form.upload id="ahd-reply-attachments" name="attachments" multiple="multiple" />
+                        </div>
+                        <div class="ahd-actions">
+                            <button type="submit" class="ahd-button ahd-button--primary">{labels.replyButton}</button>
+                        </div>
+                    </f:form>
+                </section>
+            </div>
+        </f:then>
+        <f:else>
+            <div class="ahd-shell">
+                <section class="ahd-card">
+                    <h1>{labels.ticketUnavailableTitle}</h1>
+                    <p class="ahd-empty">{labels.ticketUnavailableText}</p>
+                </section>
+            </div>
+        </f:else>
+    </f:if>
+</f:section>
+</html>

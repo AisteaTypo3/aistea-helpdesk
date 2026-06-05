@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.0">
+  <file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2026-05-22T00:00:00Z">
+    <header/>
+    <body>
+      <trans-unit id="portal.kicker"><source>Helpdesk</source><target>Helpdesk</target></trans-unit>
+      <trans-unit id="portal.title"><source>Support without friction</source><target>Support ohne Reibung</target></trans-unit>
+      <trans-unit id="portal.lead"><source>Create a ticket, describe your issue clearly and follow the conversation in a calm, structured portal.</source><target>Erstelle ein Ticket, beschreibe dein Anliegen klar und verfolge den Verlauf in einem ruhigen, uebersichtlichen Portal.</target></trans-unit>
+      <trans-unit id="portal.createdLabel"><source>Ticket created</source><target>Ticket erstellt</target></trans-unit>
+      <trans-unit id="portal.createdLink"><source>Open ticket history</source><target>Zum Ticketverlauf</target></trans-unit>
+      <trans-unit id="portal.tokenLabel"><source>Access token</source><target>Zugriffstoken</target></trans-unit>
+      <trans-unit id="portal.newTicket"><source>New ticket</source><target>Neues Ticket</target></trans-unit>
+      <trans-unit id="portal.submitTicket"><source>Submit ticket</source><target>Ticket absenden</target></trans-unit>
+      <trans-unit id="portal.myTickets"><source>My tickets</source><target>Meine Tickets</target></trans-unit>
+      <trans-unit id="portal.viewTicket"><source>View ticket</source><target>Ansehen</target></trans-unit>
+      <trans-unit id="portal.missingDetailPid"><source>Detail page missing</source><target>Detail-PID fehlt</target></trans-unit>
+      <trans-unit id="portal.noTickets"><source>No tickets yet.</source><target>Noch keine Tickets vorhanden.</target></trans-unit>
+      <trans-unit id="portal.loginRequiredList"><source>The ticket list is only available for logged-in users.</source><target>Die Ticketliste ist nur fuer angemeldete Nutzer sichtbar.</target></trans-unit>
+      <trans-unit id="portal.frontendLoginRequiredCreate"><source>Please log in to create a ticket.</source><target>Bitte melde dich an, um ein Ticket zu erstellen.</target></trans-unit>
+      <trans-unit id="field.subject"><source>Subject</source><target>Betreff</target></trans-unit>
+      <trans-unit id="field.name"><source>Name</source><target>Name</target></trans-unit>
+      <trans-unit id="field.email"><source>Email</source><target>E-Mail</target></trans-unit>
+      <trans-unit id="field.category"><source>Category</source><target>Kategorie</target></trans-unit>
+      <trans-unit id="field.priority"><source>Priority</source><target>Prioritaet</target></trans-unit>
+      <trans-unit id="field.description"><source>Description</source><target>Beschreibung</target></trans-unit>
+      <trans-unit id="field.attachments"><source>Attachments</source><target>Anhaenge</target></trans-unit>
+      <trans-unit id="field.selectOption"><source>Please choose</source><target>Bitte waehlen</target></trans-unit>
+      <trans-unit id="ticket.timeline"><source>Conversation</source><target>Verlauf</target></trans-unit>
+      <trans-unit id="ticket.sendReply"><source>Send reply</source><target>Antwort senden</target></trans-unit>
+      <trans-unit id="ticket.replyMessage"><source>Message</source><target>Nachricht</target></trans-unit>
+      <trans-unit id="ticket.replyButton"><source>Send reply</source><target>Antwort senden</target></trans-unit>
+      <trans-unit id="ticket.unavailableTitle"><source>Ticket unavailable</source><target>Ticket nicht verfuegbar</target></trans-unit>
+      <trans-unit id="ticket.unavailableText"><source>The ticket could not be loaded or is not accessible with this link.</source><target>Das Ticket konnte nicht geladen werden oder ist fuer diesen Zugriff nicht freigegeben.</target></trans-unit>
+      <trans-unit id="ticket.attachmentsHeading"><source>Attachments</source><target>Anhaenge</target></trans-unit>
+      <trans-unit id="ticket.downloadAttachment"><source>Open file</source><target>Datei oeffnen</target></trans-unit>
+      <trans-unit id="flash.fillRequired"><source>Please fill out all required fields.</source><target>Bitte fuelle alle Pflichtfelder aus.</target></trans-unit>
+      <trans-unit id="flash.ticketNotFound"><source>Ticket not found or not accessible.</source><target>Ticket nicht gefunden oder nicht verfuegbar.</target></trans-unit>
+      <trans-unit id="flash.replyEmpty"><source>Please enter a message.</source><target>Bitte gib eine Nachricht ein.</target></trans-unit>
+      <trans-unit id="mail.brand"><source>Aistea Helpdesk</source><target>Aistea Helpdesk</target></trans-unit>
+      <trans-unit id="mail.autoNotice"><source>This message was sent automatically by the helpdesk.</source><target>Diese Nachricht wurde automatisch aus dem Helpdesk gesendet.</target></trans-unit>
+      <trans-unit id="mail.customerTicketCreatedSubject"><source>Ticket confirmed: {ticketNumber}</source><target>Ticket bestaetigt: {ticketNumber}</target></trans-unit>
+      <trans-unit id="mail.supportTicketCreatedSubject"><source>New helpdesk ticket: {ticketNumber}</source><target>Neues Helpdesk-Ticket: {ticketNumber}</target></trans-unit>
+      <trans-unit id="mail.supportCustomerReplySubject"><source>Customer reply for ticket {ticketNumber}</source><target>Kundenantwort zu Ticket {ticketNumber}</target></trans-unit>
+      <trans-unit id="mail.customerAgentReplySubject"><source>New reply for ticket {ticketNumber}</source><target>Neue Antwort zu Ticket {ticketNumber}</target></trans-unit>
+      <trans-unit id="mail.customerStatusChangedSubject"><source>Status update for ticket {ticketNumber}</source><target>Statusupdate fuer Ticket {ticketNumber}</target></trans-unit>
+      <trans-unit id="mail.customerTicketCreatedHeadline"><source>Ticket created successfully</source><target>Ticket erfolgreich erstellt</target></trans-unit>
+      <trans-unit id="mail.supportTicketCreatedHeadline"><source>New ticket received</source><target>Neues Ticket eingegangen</target></trans-unit>
+      <trans-unit id="mail.supportCustomerReplyHeadline"><source>New customer reply</source><target>Neue Kundenantwort</target></trans-unit>
+      <trans-unit id="mail.customerAgentReplyHeadline"><source>New support reply</source><target>Neue Antwort vom Support</target></trans-unit>
+      <trans-unit id="mail.customerStatusChangedHeadline"><source>Status update for your ticket</source><target>Statusupdate zu deinem Ticket</target></trans-unit>
+      <trans-unit id="mail.hello"><source>Hello</source><target>Hallo</target></trans-unit>
+      <trans-unit id="mail.customerTicketCreatedBody"><source>Your ticket {ticketNumber} was created successfully. We will get back to you as soon as possible.</source><target>dein Ticket {ticketNumber} wurde erfolgreich erstellt. Wir melden uns schnellstmoeglich bei dir.</target></trans-unit>
+      <trans-unit id="mail.supportTicketCreatedIntro"><source>A new ticket has been received.</source><target>Ein neues Ticket ist eingegangen.</target></trans-unit>
+      <trans-unit id="mail.supportCustomerReplyIntro"><source>A customer has added a new reply.</source><target>Es gibt eine neue Kundenantwort.</target></trans-unit>
+      <trans-unit id="mail.customerAgentReplyBody"><source>There is a new answer to your ticket {ticketNumber}.</source><target>es gibt eine neue Antwort zu deinem Ticket {ticketNumber}.</target></trans-unit>
+      <trans-unit id="mail.customerStatusChangedBody"><source>The status of your ticket {ticketNumber} has been updated.</source><target>der Status deines Tickets {ticketNumber} wurde aktualisiert.</target></trans-unit>
+      <trans-unit id="mail.portalLinkIntro"><source>You can view and reply to your ticket at any time using the following link:</source><target>Du kannst dein Ticket jederzeit ueber den folgenden Link ansehen und beantworten:</target></trans-unit>
+      <trans-unit id="mail.portalLinkButton"><source>Open ticket</source><target>Zum Ticket</target></trans-unit>
+      <trans-unit id="mail.portalLinkFallback"><source>If the button does not work, use this link:</source><target>Falls der Button nicht funktioniert, nutze diesen Link:</target></trans-unit>
+      <trans-unit id="mail.portalReplyHint"><source>Please reply directly in the ticket portal via this link.</source><target>Bitte antworte direkt ueber diesen Link im Ticketportal.</target></trans-unit>
+      <trans-unit id="mail.details.ticketNumber"><source>Ticket number</source><target>Ticketnummer</target></trans-unit>
+      <trans-unit id="mail.details.subject"><source>Subject</source><target>Betreff</target></trans-unit>
+      <trans-unit id="mail.details.status"><source>Status</source><target>Status</target></trans-unit>
+      <trans-unit id="mail.details.customer"><source>Customer</source><target>Kunde</target></trans-unit>
+      <trans-unit id="mail.details.priority"><source>Priority</source><target>Prioritaet</target></trans-unit>
+      <trans-unit id="mail.details.category"><source>Category</source><target>Kategorie</target></trans-unit>
+      <trans-unit id="mail.details.from"><source>From</source><target>Von</target></trans-unit>
+      <trans-unit id="mail.details.oldStatus"><source>Previous status</source><target>Alter Status</target></trans-unit>
+      <trans-unit id="mail.details.newStatus"><source>New status</source><target>Neuer Status</target></trans-unit>
+      <trans-unit id="mail.details.message"><source>Message</source><target>Nachricht</target></trans-unit>
+      <trans-unit id="mail.details.description"><source>Description</source><target>Beschreibung</target></trans-unit>
+    </body>
+  </file>
+</xliff>

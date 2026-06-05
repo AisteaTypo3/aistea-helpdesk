@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.0">
+  <file source-language="en" datatype="plaintext" original="messages" date="2026-05-22T00:00:00Z">
+    <header/>
+    <body>
+      <trans-unit id="module.title"><source>Helpdesk</source></trans-unit>
+      <trans-unit id="module.description"><source>Manage incoming tickets, replies and internal notes.</source></trans-unit>
+      <trans-unit id="module.shortDescription"><source>Tickets and internal handling</source></trans-unit>
+    </body>
+  </file>
+</xliff>

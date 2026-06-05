@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.0">
+  <file source-language="en" datatype="plaintext" original="messages" date="2026-05-22T00:00:00Z">
+    <header/>
+    <body>
+      <trans-unit id="ticket"><source>Ticket</source></trans-unit>
+      <trans-unit id="ticketMessage"><source>Ticket Message</source></trans-unit>
+      <trans-unit id="ticketCategory"><source>Ticket Category</source></trans-unit>
+      <trans-unit id="ticketPriority"><source>Ticket Priority</source></trans-unit>
+      <trans-unit id="ticketStatus"><source>Ticket Status</source></trans-unit>
+      <trans-unit id="field.ticketNumber"><source>Ticket Number</source></trans-unit>
+      <trans-unit id="field.subject"><source>Subject</source></trans-unit>
+      <trans-unit id="field.description"><source>Description</source></trans-unit>
+      <trans-unit id="field.customerName"><source>Customer Name</source></trans-unit>
+      <trans-unit id="field.customerEmail"><source>Customer Email</source></trans-unit>
+      <trans-unit id="field.customerFeUser"><source>Frontend User</source></trans-unit>
+      <trans-unit id="field.assignedBackendUser"><source>Assigned Backend User</source></trans-unit>
+      <trans-unit id="field.category"><source>Category</source></trans-unit>
+      <trans-unit id="field.priority"><source>Priority</source></trans-unit>
+      <trans-unit id="field.status"><source>Status</source></trans-unit>
+      <trans-unit id="field.dueAt"><source>Due At</source></trans-unit>
+      <trans-unit id="field.ticket"><source>Ticket</source></trans-unit>
+      <trans-unit id="field.authorType"><source>Author Type</source></trans-unit>
+      <trans-unit id="field.authorName"><source>Author Name</source></trans-unit>
+      <trans-unit id="field.authorEmail"><source>Author Email</source></trans-unit>
+      <trans-unit id="field.message"><source>Message</source></trans-unit>
+      <trans-unit id="field.attachments"><source>Attachments</source></trans-unit>
+      <trans-unit id="field.attachments.add"><source>Add attachment</source></trans-unit>
+      <trans-unit id="field.isInternal"><source>Internal Note</source></trans-unit>
+      <trans-unit id="field.title"><source>Title</source></trans-unit>
+      <trans-unit id="field.slug"><source>Slug</source></trans-unit>
+      <trans-unit id="field.isActive"><source>Active</source></trans-unit>
+      <trans-unit id="field.code"><source>Code</source></trans-unit>
+      <trans-unit id="field.responseHours"><source>Response Hours</source></trans-unit>
+      <trans-unit id="field.resolveHours"><source>Resolve Hours</source></trans-unit>
+      <trans-unit id="field.isClosed"><source>Closed Status</source></trans-unit>
+      <trans-unit id="field.siteRootPageId"><source>Site Root Page ID</source></trans-unit>
+      <trans-unit id="field.siteLanguage"><source>Site Language ID</source></trans-unit>
+    </body>
+  </file>
+</xliff>

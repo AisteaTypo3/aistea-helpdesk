@@ -1,0 +1,16 @@
+plugin.tx_aisteahelpdesk {
+  settings {
+    portal {
+      allowGuestTickets = 1
+      useFrontendUsers = 0
+      requireLoginForTicketList = 1
+      ticketDetailPid = 0
+    }
+    uploads {
+      maxFiles = 3
+      maxSizeMb = 10
+    }
+  }
+}
+
+page.includeCSS.aisteaHelpdesk = EXT:aistea_helpdesk/Resources/Public/Css/helpdesk.css

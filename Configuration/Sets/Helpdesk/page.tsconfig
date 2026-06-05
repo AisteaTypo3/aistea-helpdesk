@@ -1,0 +1,28 @@
+mod.wizards.newContentElement.wizardItems.plugins {
+    show := removeFromList(aisteahelpdesk_portal,aisteahelpdesk_ticket)
+}
+
+mod.wizards.newContentElement.wizardItems.helpdesk {
+    header = Helpdesk
+    elements {
+        aisteahelpdesk_portal {
+            iconIdentifier = aistea-helpdesk-plugin
+            title = Helpdesk Portal
+            description = Erstellt und listet Support-Tickets im Frontend.
+            tt_content_defValues {
+                CType = list
+                list_type = aisteahelpdesk_portal
+            }
+        }
+        aisteahelpdesk_ticket {
+            iconIdentifier = aistea-helpdesk-plugin
+            title = Helpdesk Ticket
+            description = Zeigt ein einzelnes Ticket mit Verlauf und Antwortformular.
+            tt_content_defValues {
+                CType = list
+                list_type = aisteahelpdesk_ticket
+            }
+        }
+    }
+    show = aisteahelpdesk_portal,aisteahelpdesk_ticket
+}

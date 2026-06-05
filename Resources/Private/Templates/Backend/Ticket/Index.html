@@ -1,0 +1,77 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<div class="module">
+    <div class="module-body">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="btn-toolbar" role="toolbar">
+                            <div class="btn-group" role="group">
+                                <f:for each="{statusFilterItems}" as="statusFilterItem">
+                                    <f:link.action action="index" arguments="{status: statusFilterItem.code, q: filters.q}" class="btn {f:if(condition: statusFilterItem.isActive, then: 'btn-primary', else: 'btn-default')}">
+                                        {statusFilterItem.title} <span class="badge">{statusFilterItem.count}</span>
+                                    </f:link.action>
+                                </f:for>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <f:form action="index" method="get" class="form-inline pull-right">
+                            <f:form.hidden name="status" value="{filters.status}" />
+                            <div class="form-group">
+                                <f:form.textfield name="q" value="{filters.q}" class="form-control" placeholder="Suche Ticket, Betreff, Kunde" />
+                            </div>
+                            <button type="submit" class="btn btn-default">Filtern</button>
+                        </f:form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-fit">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Ticket</th>
+                        <th>Betreff</th>
+                        <th>Status</th>
+                        <th>Prioritaet</th>
+                        <th>Kunde</th>
+                        <th>Aktualisiert</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <f:if condition="{tickets}">
+                        <f:then>
+                    <f:for each="{tickets}" as="ticket">
+                        <tr>
+                            <td><strong>{ticket.ticket_number}</strong></td>
+                            <td>
+                                {ticket.subject}
+                                <f:if condition="{ticket.attachment_count} > 0">
+                                    <span class="label label-info" style="margin-left: .5rem;">Anhang {ticket.attachment_count}</span>
+                                </f:if>
+                            </td>
+                            <td>{ticket.status_title}</td>
+                            <td>{ticket.priority_title}</td>
+                            <td>{ticket.customer_name}</td>
+                            <td>{ticket.tstamp -> f:format.date(format:'d.m.Y H:i')}</td>
+                            <td>
+                                <f:link.action action="show" arguments="{ticket: ticket.uid}">Oeffnen</f:link.action>
+                            </td>
+                        </tr>
+                    </f:for>
+                        </f:then>
+                        <f:else>
+                            <tr>
+                                <td colspan="7">Keine Tickets fuer den aktuellen Filter gefunden.</td>
+                            </tr>
+                        </f:else>
+                    </f:if>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</html>

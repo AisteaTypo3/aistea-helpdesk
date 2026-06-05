@@ -1,0 +1,125 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:layout name="Default" />
+
+<f:section name="Main">
+    <div class="ahd-shell ahd-shell--portal {f:if(condition: useFrontendUsers, then: 'ahd-shell--with-list', else: 'ahd-shell--centered')}">
+        <div class="ahd-hero">
+            <div>
+                <p class="ahd-kicker">{labels.kicker}</p>
+                <h1>{labels.portalTitle}</h1>
+                <p class="ahd-lead">{labels.portalLead}</p>
+            </div>
+            <f:if condition="{createdTicket}">
+                <div class="ahd-callout">
+                    <span>{labels.createdLabel}</span>
+                    <strong>{createdTicket.ticketNumber}</strong>
+                    <f:if condition="{createdTicket.ticketLink}">
+                        <p><a href="{createdTicket.ticketLink}">{labels.createdLink}</a></p>
+                    </f:if>
+                    <f:if condition="{createdTicket.visibilityToken}">
+                        <p class="ahd-muted">{labels.tokenLabel}: <code>{createdTicket.visibilityToken}</code></p>
+                    </f:if>
+                </div>
+            </f:if>
+        </div>
+
+        <div class="ahd-grid">
+            <section class="ahd-card ahd-card--form">
+                <div class="ahd-card__intro">
+                    <p class="ahd-card__eyebrow">{labels.newTicket}</p>
+                    <h2>{labels.newTicket}</h2>
+                </div>
+                <f:form action="create" class="ahd-form" additionalAttributes="{enctype: 'multipart/form-data'}">
+                    <div class="ahd-field">
+                        <label for="ahd-subject">{labels.subject}</label>
+                        <f:form.textfield id="ahd-subject" name="subject" required="required" />
+                    </div>
+                    <div class="ahd-row">
+                        <div class="ahd-field">
+                            <label for="ahd-name">{labels.name}</label>
+                            <f:if condition="{identityLocked}">
+                                <f:then>
+                                    <f:form.textfield id="ahd-name" name="customerName" value="{frontendUser.name}" required="required" additionalAttributes="{readonly: 'readonly'}" />
+                                </f:then>
+                                <f:else>
+                                    <f:form.textfield id="ahd-name" name="customerName" value="{frontendUser.name}" required="required" />
+                                </f:else>
+                            </f:if>
+                        </div>
+                        <div class="ahd-field">
+                            <label for="ahd-email">{labels.email}</label>
+                            <f:if condition="{identityLocked}">
+                                <f:then>
+                                    <f:form.textfield id="ahd-email" name="customerEmail" value="{frontendUser.email}" required="required" additionalAttributes="{readonly: 'readonly'}" />
+                                </f:then>
+                                <f:else>
+                                    <f:form.textfield id="ahd-email" name="customerEmail" value="{frontendUser.email}" required="required" />
+                                </f:else>
+                            </f:if>
+                        </div>
+                    </div>
+                    <div class="ahd-row">
+                        <div class="ahd-field">
+                            <label for="ahd-category">{labels.category}</label>
+                            <f:form.select id="ahd-category" name="category" options="{categories}" optionValueField="uid" optionLabelField="title" prependOptionLabel="{labels.selectOption}" prependOptionValue="0" />
+                        </div>
+                        <div class="ahd-field">
+                            <label for="ahd-priority">{labels.priority}</label>
+                            <f:form.select id="ahd-priority" name="priority" options="{priorities}" optionValueField="uid" optionLabelField="title" prependOptionLabel="{labels.selectOption}" prependOptionValue="0" />
+                        </div>
+                    </div>
+                    <div class="ahd-field">
+                        <label for="ahd-description">{labels.description}</label>
+                        <f:form.textarea id="ahd-description" name="description" rows="8" required="required" />
+                    </div>
+                    <div class="ahd-field">
+                        <label for="ahd-attachments">{labels.attachments}</label>
+                        <f:form.upload id="ahd-attachments" name="attachments" multiple="multiple" />
+                    </div>
+                    <div class="ahd-actions">
+                        <button type="submit" class="ahd-button ahd-button--primary">{labels.submitTicket}</button>
+                    </div>
+                </f:form>
+            </section>
+
+            <f:if condition="{useFrontendUsers}">
+                <section class="ahd-card">
+                    <h2>{labels.myTickets}</h2>
+                    <f:if condition="{showTicketList}">
+                        <f:then>
+                            <f:if condition="{tickets}">
+                                <f:then>
+                                    <div class="ahd-list">
+                                        <f:for each="{tickets}" as="ticket">
+                                            <article class="ahd-ticket-row">
+                                                <div>
+                                                    <p class="ahd-ticket-number">{ticket.ticket_number}</p>
+                                                    <h3>{ticket.subject}</h3>
+                                                    <p class="ahd-muted">{ticket.priority_title} · {ticket.status_title}</p>
+                                                </div>
+                                                <div class="ahd-ticket-meta">
+                                                    <span>{ticket.tstamp -> f:format.date(format:'d.m.Y H:i')}</span>
+                                                    <f:if condition="{ticket.detailLink}">
+                                                        <f:then><a href="{ticket.detailLink}">{labels.viewTicket}</a></f:then>
+                                                        <f:else><span class="ahd-muted">{labels.missingDetailPid}</span></f:else>
+                                                    </f:if>
+                                                </div>
+                                            </article>
+                                        </f:for>
+                                    </div>
+                                </f:then>
+                                <f:else>
+                                    <p class="ahd-empty">{labels.noTickets}</p>
+                                </f:else>
+                            </f:if>
+                        </f:then>
+                        <f:else>
+                            <p class="ahd-empty">{labels.loginRequiredList}</p>
+                        </f:else>
+                    </f:if>
+                </section>
+            </f:if>
+        </div>
+    </div>
+</f:section>
+</html>
