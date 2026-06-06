@@ -1,101 +1,136 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 <div class="module">
     <div class="module-body">
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-sm-8">
-                        <div class="btn-toolbar" role="toolbar">
-                            <div class="btn-group" role="group">
-                                <f:for each="{statusFilterItems}" as="statusFilterItem">
-                                    <f:link.action action="index" arguments="{status: statusFilterItem.code, q: filters.q, assignedBackendUser: filters.assignedBackendUser}" class="btn {f:if(condition: statusFilterItem.isActive, then: 'btn-primary', else: 'btn-default')}">
-                                        {statusFilterItem.title} <span class="badge">{statusFilterItem.count}</span>
+        <f:form action="index" method="post">
+            <f:form.hidden name="status" value="{filters.status}" />
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <div class="btn-group" role="group" style="margin-bottom: 12px;">
+                                <f:for each="{viewSwitchItems}" as="viewSwitchItem">
+                                    <f:link.action action="{viewSwitchItem.action}" arguments="{viewSwitchItem.arguments}" class="btn {f:if(condition: viewSwitchItem.isActive, then: 'btn-primary', else: 'btn-default')}">
+                                        {viewSwitchItem.label}
                                     </f:link.action>
                                 </f:for>
                             </div>
+                            <div class="btn-toolbar" role="toolbar">
+                                <div class="btn-group" role="group">
+                                    <f:for each="{statusFilterItems}" as="statusFilterItem">
+                                        <f:link.action action="index" arguments="{status: statusFilterItem.code, q: filters.q, assignedBackendUser: filters.assignedBackendUser}" class="btn {f:if(condition: statusFilterItem.isActive, then: 'btn-primary', else: 'btn-default')}">
+                                            {statusFilterItem.title} <span class="badge">{statusFilterItem.count}</span>
+                                        </f:link.action>
+                                    </f:for>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <f:form action="index" method="post" class="form-inline pull-right">
-                            <f:form.hidden name="status" value="{filters.status}" />
-                            <div class="form-group">
-                                <f:form.select name="assignedBackendUser" options="{backendUsers}" optionValueField="uid" optionLabelField="display_label" value="{filters.assignedBackendUser}" prependOptionLabel="Alle Bearbeiter" prependOptionValue="-1" class="form-control" />
+                        <div class="col-sm-4">
+                            <div class="form-inline text-right">
+                                <div class="form-group">
+                                    <f:form.select name="assignedBackendUser" options="{backendUsers}" optionValueField="uid" optionLabelField="display_label" value="{filters.assignedBackendUser}" prependOptionLabel="Alle Bearbeiter" prependOptionValue="-1" class="form-control" />
+                                </div>
+                                <div class="form-group">
+                                    <f:form.textfield name="q" value="{filters.q}" class="form-control" placeholder="Suche Ticket, Betreff, Kunde" />
+                                </div>
+                                <button type="submit" class="btn btn-default">Filtern</button>
                             </div>
-                            <div class="form-group">
-                                <f:form.textfield name="q" value="{filters.q}" class="form-control" placeholder="Suche Ticket, Betreff, Kunde" />
-                            </div>
-                            <button type="submit" class="btn btn-default">Filtern</button>
-                        </f:form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="table-fit">
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>Ticket</th>
-                        <th>Betreff</th>
-                        <th>Status</th>
-                        <th>Prioritaet</th>
-                        <th>Bearbeiter</th>
-                        <th>SLA</th>
-                        <th>Kunde</th>
-                        <th>Aktualisiert</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <f:if condition="{tickets}">
-                        <f:then>
-                    <f:for each="{tickets}" as="ticket">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="bulk-status">Bulk-Status</label>
+                                <f:form.select id="bulk-status" name="bulkStatus" options="{statusOptions}" optionValueField="uid" optionLabelField="title" value="0" prependOptionLabel="Nicht aendern" prependOptionValue="0" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="bulk-assigned-backend-user">Bearbeiter</label>
+                                <f:form.select id="bulk-assigned-backend-user" name="bulkAssignedBackendUser" options="{bulkBackendUsers}" optionValueField="uid" optionLabelField="display_label" value="-1" prependOptionLabel="Nicht aendern" prependOptionValue="-1" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4 text-right">
+                            <button type="submit" name="bulkAction" value="apply" class="btn btn-primary" style="margin-top: 24px;">Auswahl anwenden</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-fit">
+                <table class="table table-striped table-hover">
+                    <thead>
                         <tr>
-                            <td><strong>{ticket.ticket_number}</strong></td>
-                            <td>
-                                {ticket.subject}
-                                <f:if condition="{ticket.attachment_count} > 0">
-                                    <span class="label label-info" style="margin-left: .5rem;">Anhang {ticket.attachment_count}</span>
-                                </f:if>
-                            </td>
-                            <td>{ticket.status_title}</td>
-                            <td>{ticket.priority_title}</td>
-                            <td>
-                                <f:if condition="{ticket.assigned_backend_user_name}">
-                                    <f:then>{ticket.assigned_backend_user_name}</f:then>
-                                    <f:else><span class="text-muted">Nicht zugewiesen</span></f:else>
-                                </f:if>
-                            </td>
-                            <td>
-                                <f:if condition="{ticket.due_at} > 0">
-                                    <f:then>
-                                        <span class="{f:if(condition: ticket.is_overdue, then: 'text-danger', else: '')}">
-                                            {ticket.due_at -> f:format.date(format:'d.m.Y H:i')}
-                                        </span>
-                                        <f:if condition="{ticket.is_overdue}">
-                                            <span class="label label-danger" style="margin-left: .5rem;">Ueberfaellig</span>
-                                        </f:if>
-                                    </f:then>
-                                    <f:else><span class="text-muted">Keine Frist</span></f:else>
-                                </f:if>
-                            </td>
-                            <td>{ticket.customer_name}</td>
-                            <td>{ticket.tstamp -> f:format.date(format:'d.m.Y H:i')}</td>
-                            <td>
-                                <f:link.action action="show" arguments="{ticket: ticket.uid}">Oeffnen</f:link.action>
-                            </td>
+                            <th style="width: 36px;"></th>
+                            <th>Ticket</th>
+                            <th>Betreff</th>
+                            <th>Status</th>
+                            <th>Prioritaet</th>
+                            <th>Bearbeiter</th>
+                            <th>SLA</th>
+                            <th>Kunde</th>
+                            <th>Aktualisiert</th>
+                            <th></th>
                         </tr>
-                    </f:for>
-                        </f:then>
-                        <f:else>
-                            <tr>
-                                <td colspan="9">Keine Tickets fuer den aktuellen Filter gefunden.</td>
-                            </tr>
-                        </f:else>
-                    </f:if>
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        <f:if condition="{tickets}">
+                            <f:then>
+                                <f:for each="{tickets}" as="ticket">
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="selectedTickets[]" value="{ticket.uid}" />
+                                        </td>
+                                        <td><strong>{ticket.ticket_number}</strong></td>
+                                        <td>
+                                            {ticket.subject}
+                                            <f:if condition="{ticket.attachment_count} > 0">
+                                                <span class="label label-info" style="margin-left: .5rem;">Anhang {ticket.attachment_count}</span>
+                                            </f:if>
+                                        </td>
+                                        <td>{ticket.status_title}</td>
+                                        <td>{ticket.priority_title}</td>
+                                        <td>
+                                            <f:if condition="{ticket.assigned_backend_user_name}">
+                                                <f:then>{ticket.assigned_backend_user_name}</f:then>
+                                                <f:else><span class="text-muted">Nicht zugewiesen</span></f:else>
+                                            </f:if>
+                                        </td>
+                                        <td>
+                                            <f:if condition="{ticket.due_at} > 0">
+                                                <f:then>
+                                                    <span class="{f:if(condition: ticket.is_overdue, then: 'text-danger', else: '')}">
+                                                        {ticket.due_at -> f:format.date(format:'d.m.Y H:i')}
+                                                    </span>
+                                                    <f:if condition="{ticket.is_overdue}">
+                                                        <span class="label label-danger" style="margin-left: .5rem;">Ueberfaellig</span>
+                                                    </f:if>
+                                                </f:then>
+                                                <f:else><span class="text-muted">Keine Frist</span></f:else>
+                                            </f:if>
+                                        </td>
+                                        <td>{ticket.customer_name}</td>
+                                        <td>{ticket.tstamp -> f:format.date(format:'d.m.Y H:i')}</td>
+                                        <td>
+                                            <f:link.action action="show" arguments="{ticket: ticket.uid}">Oeffnen</f:link.action>
+                                        </td>
+                                    </tr>
+                                </f:for>
+                            </f:then>
+                            <f:else>
+                                <tr>
+                                    <td colspan="10">Keine Tickets fuer den aktuellen Filter gefunden.</td>
+                                </tr>
+                            </f:else>
+                        </f:if>
+                    </tbody>
+                </table>
+            </div>
+        </f:form>
     </div>
 </div>
 </html>

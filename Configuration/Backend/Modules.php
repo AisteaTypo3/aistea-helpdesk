@@ -18,7 +18,7 @@ return [
         ],
         'extensionName' => 'AisteaHelpdesk',
         'controllerActions' => [
-            TicketModuleController::class => ['index', 'show', 'updateStatus', 'updateAssignment', 'addInternalNote', 'addPublicReply'],
+            TicketModuleController::class => ['index', 'board', 'show', 'updateStatus', 'updateAssignment', 'addInternalNote', 'addPublicReply'],
         ],
     ],
 ];

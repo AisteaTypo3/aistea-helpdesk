@@ -1,0 +1,136 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<div class="module">
+    <div class="module-body">
+        <style>
+            .helpdesk-board-column-drop-target .panel-heading {
+                background: #d9edf7;
+            }
+
+            .helpdesk-ticket-card {
+                cursor: grab;
+                transition: opacity .15s ease, transform .15s ease, box-shadow .15s ease;
+            }
+
+            .helpdesk-ticket-card:hover {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+            }
+
+            .helpdesk-ticket-card-dragging {
+                opacity: .45;
+                transform: rotate(1deg);
+                cursor: grabbing;
+            }
+        </style>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="btn-group" role="group" style="margin-bottom: 12px;">
+                            <f:for each="{viewSwitchItems}" as="viewSwitchItem">
+                                <f:link.action action="{viewSwitchItem.action}" arguments="{viewSwitchItem.arguments}" class="btn {f:if(condition: viewSwitchItem.isActive, then: 'btn-primary', else: 'btn-default')}">
+                                    {viewSwitchItem.label}
+                                </f:link.action>
+                            </f:for>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <f:form action="board" method="post" class="form-inline text-right">
+                            <div class="form-group">
+                                <f:form.select name="assignedBackendUser" options="{backendUsers}" optionValueField="uid" optionLabelField="display_label" value="{filters.assignedBackendUser}" prependOptionLabel="Alle Bearbeiter" prependOptionValue="-1" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <f:form.textfield name="q" value="{filters.q}" class="form-control" placeholder="Suche Ticket, Betreff, Kunde" />
+                            </div>
+                            <button type="submit" class="btn btn-default">Filtern</button>
+                        </f:form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <f:form action="updateStatus" method="post" additionalAttributes="{data-helpdesk-board-status-form: '1', style: 'display: none;'}">
+            <f:form.hidden name="ticket" value="0" />
+            <f:form.hidden name="status" value="0" />
+            <f:form.hidden name="returnView" value="board" />
+            <f:form.hidden name="q" value="{filters.q}" />
+            <f:form.hidden name="assignedBackendUser" value="{filters.assignedBackendUser}" />
+        </f:form>
+
+        <div data-helpdesk-board="1" style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; align-items: flex-start;">
+            <f:for each="{boardColumns}" as="column">
+                <div class="panel panel-default helpdesk-board-column" data-helpdesk-board-column="1" data-status-uid="{column.uid}" style="min-width: 300px; width: 300px; margin-bottom: 0; flex: 0 0 300px;">
+                    <div class="panel-heading">
+                        <strong>{column.title}</strong>
+                        <span class="badge pull-right">{column.tickets -> f:count()}</span>
+                    </div>
+                    <div class="panel-body" style="padding: 12px; background: #f7f7f7;">
+                        <f:if condition="{column.tickets}">
+                            <f:then>
+                                <f:for each="{column.tickets}" as="ticket">
+                                    <div class="panel panel-default helpdesk-ticket-card" data-helpdesk-ticket-card="1" data-ticket-uid="{ticket.uid}" data-status-uid="{ticket.status}" draggable="true" style="margin-bottom: 12px;">
+                                        <div class="panel-body" style="padding: 12px;">
+                                            <div style="margin-bottom: 8px;">
+                                                <strong>{ticket.ticket_number}</strong>
+                                                <f:if condition="{ticket.is_overdue}">
+                                                    <span class="label label-danger pull-right">Ueberfaellig</span>
+                                                </f:if>
+                                            </div>
+                                            <div style="font-weight: 600; margin-bottom: 8px;">{ticket.subject}</div>
+                                            <div class="text-muted" style="margin-bottom: 4px;">{ticket.customer_name}</div>
+                                            <div class="text-muted" style="margin-bottom: 4px;">{ticket.priority_title}</div>
+                                            <div class="text-muted" style="margin-bottom: 8px;">
+                                                <f:if condition="{ticket.assigned_backend_user_name}">
+                                                    <f:then>{ticket.assigned_backend_user_name}</f:then>
+                                                    <f:else>Nicht zugewiesen</f:else>
+                                                </f:if>
+                                            </div>
+                                            <div class="text-muted" style="font-size: 12px; margin-bottom: 8px;">
+                                                Aktualisiert {ticket.tstamp -> f:format.date(format:'d.m.Y H:i')}
+                                            </div>
+                                            <f:if condition="{ticket.due_at} > 0">
+                                                <div class="text-muted" style="font-size: 12px; margin-bottom: 10px;">
+                                                    Faellig {ticket.due_at -> f:format.date(format:'d.m.Y H:i')}
+                                                </div>
+                                            </f:if>
+                                            <div class="btn-toolbar" role="toolbar">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <f:if condition="{column.previousStatusUid} > 0">
+                                                        <f:form action="updateStatus" method="post" additionalAttributes="{style: 'display: inline-block;'}">
+                                                            <f:form.hidden name="ticket" value="{ticket.uid}" />
+                                                            <f:form.hidden name="status" value="{column.previousStatusUid}" />
+                                                            <f:form.hidden name="returnView" value="board" />
+                                                            <f:form.hidden name="q" value="{filters.q}" />
+                                                            <f:form.hidden name="assignedBackendUser" value="{filters.assignedBackendUser}" />
+                                                            <button type="submit" class="btn btn-default btn-sm" title="{column.previousStatusTitle}">&larr;</button>
+                                                        </f:form>
+                                                    </f:if>
+                                                    <f:if condition="{column.nextStatusUid} > 0">
+                                                        <f:form action="updateStatus" method="post" additionalAttributes="{style: 'display: inline-block;'}">
+                                                            <f:form.hidden name="ticket" value="{ticket.uid}" />
+                                                            <f:form.hidden name="status" value="{column.nextStatusUid}" />
+                                                            <f:form.hidden name="returnView" value="board" />
+                                                            <f:form.hidden name="q" value="{filters.q}" />
+                                                            <f:form.hidden name="assignedBackendUser" value="{filters.assignedBackendUser}" />
+                                                            <button type="submit" class="btn btn-default btn-sm" title="{column.nextStatusTitle}">&rarr;</button>
+                                                        </f:form>
+                                                    </f:if>
+                                                </div>
+                                                <div class="btn-group btn-group-sm pull-right" role="group">
+                                                    <f:link.action action="show" arguments="{ticket: ticket.uid}" class="btn btn-primary btn-sm">Oeffnen</f:link.action>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </f:for>
+                            </f:then>
+                            <f:else>
+                                <div class="text-muted">Keine Tickets</div>
+                            </f:else>
+                        </f:if>
+                    </div>
+                </div>
+            </f:for>
+        </div>
+    </div>
+</div>
+</html>
